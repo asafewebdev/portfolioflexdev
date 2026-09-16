@@ -31,16 +31,6 @@ export default function Hero() {
         <span className="text-gradient-accent">obrigação</span>.
       </motion.h1>
 
-      {/* Linha fina de apoio */}
-      <motion.p
-        initial={{ opacity: 0, y: 14 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.12 }}
-        className="relative z-10 mt-3 font-body text-sm text-white/50 sm:text-base"
-      >
-        Veja quem já está lá.
-      </motion.p>
-
       {/* Mapa regional — protagonista da hero */}
       <motion.div
         initial={{ opacity: 0, y: 24 }}
