@@ -5,10 +5,10 @@ import RegionMap from "../components/RegionMap";
 /**
  * Hero
  * Abertura como prova social visual: em vez de afirmar resultado com uma
- * manchete, mostra um mapa regional com pinos de clientes reais que já
- * estão no topo do Google — o visitante vê e pode clicar em cada um.
- * A logo já vive fixa no Header; aqui a hierarquia é frase de impacto
- * curta -> mapa (protagonista) -> CTA.
+ * manchete, mostra um mapa do Brasil com pinos espalhados por regiões
+ * distantes — presença nacional, puramente decorativa/ilustrativa (sem
+ * clique). A logo já vive fixa no Header; aqui a hierarquia é frase de
+ * impacto curta -> mapa (protagonista) -> CTA.
  */
 export default function Hero() {
   return (
@@ -38,7 +38,7 @@ export default function Hero() {
         transition={{ duration: 0.5, delay: 0.12 }}
         className="relative z-10 mt-3 font-body text-sm text-white/50 sm:text-base"
       >
-        Cada pino é um cliente real. Clique e veja.
+        Presença real, espalhada por todo o Brasil.
       </motion.p>
 
       {/* Mapa regional — protagonista da hero */}

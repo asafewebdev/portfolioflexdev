@@ -1,12 +1,12 @@
-import { useEffect, useRef, useState } from "react";
-import { AnimatePresence, motion, useMotionValue, useSpring } from "framer-motion";
+import { useEffect, useRef } from "react";
+import { motion, useMotionValue, useSpring } from "framer-motion";
 import { BRAZIL_DOTS } from "../data/brazilDots";
 
 // ---------------------------------------------------------------------------
 // CONFIGURAÇÃO DO MAPA — troque aqui quando mudar de região (ex: Equador).
 // ---------------------------------------------------------------------------
 // O mapa é desenhado como uma nuvem de pontos (pointillist map) dentro de um
-// viewBox 0 0 600 600 — é leve (só <circle> em SVG, ~800 pontos, sem lib de
+// viewBox 0 0 600 600 — é leve (só <circle> em SVG, ~1100 pontos, sem lib de
 // mapa) e estilizado, não cartograficamente preciso.
 //
 // Para trocar de região (ex: Brasil -> Equador):
@@ -21,55 +21,20 @@ import { BRAZIL_DOTS } from "../data/brazilDots";
 const DOTS = BRAZIL_DOTS;
 
 // ---------------------------------------------------------------------------
-// PINOS DE CLIENTES — PLACEHOLDER. Duplique este formato para cada cliente
-// real (o mapa conecta automaticamente todos os pinos da lista, então
-// adicionar um 5º, 6º pino já entra na rede sem precisar mexer em mais
-// nada). `x` e `y` são porcentagens (0–100) relativas ao mapa.
+// PINOS — puramente decorativos (o mapa não abre mais nada ao tocar). Só
+// marcam presença espalhada pelo país; `x`/`y` são porcentagens (0–100)
+// relativas ao mapa. Espalhe por regiões DISTANTES pra reforçar a leitura
+// de rede nacional — evite agrupar pinos perto um do outro.
 //
 // Como posicionar um pino novo:
 // - x: 0% = extremo oeste do mapa, 100% = extremo leste.
 // - y: 0% = extremo norte do mapa, 100% = extremo sul.
-// - `image`: screenshot do site do cliente (coloque o arquivo em
-//   `public/proof/` e aponte o caminho aqui). Sem imagem, mostra um
-//   placeholder tracejado.
 // ---------------------------------------------------------------------------
-// Espalhados de propósito em regiões bem distantes (Norte, Nordeste,
-// Sudeste, Sul) — é isso que vende presença nacional. Evite agrupar
-// pinos perto um do outro; quanto mais espalhados, mais forte o efeito
-// de rede cobrindo o país.
 const PINS = [
-  {
-    id: "cliente-1",
-    name: "Clínica Exemplo — Manaus/AM", // TROCAR AQUI: nome + cidade real
-    x: 35,
-    y: 21,
-    result: "Perfil no Google 100% otimizado", // TROCAR AQUI (opcional)
-    image: undefined, // TROCAR AQUI: "/proof/cliente-1-site.jpg"
-  },
-  {
-    id: "cliente-2",
-    name: "Clínica Exemplo — Salvador/BA", // TROCAR AQUI
-    x: 82,
-    y: 46,
-    result: "Primeiro lugar em buscas locais",
-    image: undefined, // TROCAR AQUI: "/proof/cliente-2-site.jpg"
-  },
-  {
-    id: "cliente-3",
-    name: "Clínica Exemplo — São Paulo/SP", // TROCAR AQUI
-    x: 64.5,
-    y: 73,
-    result: "No topo do Google em 45 dias",
-    image: undefined, // TROCAR AQUI: "/proof/cliente-3-site.jpg"
-  },
-  {
-    id: "cliente-4",
-    name: "Clínica Exemplo — Porto Alegre/RS", // TROCAR AQUI
-    x: 60,
-    y: 85,
-    result: "+180% de contatos pelo WhatsApp",
-    image: undefined, // TROCAR AQUI: "/proof/cliente-4-site.jpg"
-  },
+  { id: "pin-1", x: 35, y: 21 }, // Norte (região de Manaus/AM)
+  { id: "pin-2", x: 82, y: 46 }, // Nordeste (região de Salvador/BA)
+  { id: "pin-3", x: 64.5, y: 73 }, // Sudeste (região de São Paulo/SP)
+  { id: "pin-4", x: 60, y: 85 }, // Sul (região de Porto Alegre/RS)
 ];
 
 // Converte a % (0–100) usada nos pinos pra coordenada do viewBox 600x600,
@@ -106,15 +71,17 @@ const CONNECTIONS = buildConnections(PINS);
 /**
  * RegionMap
  * Mapa regional em SVG (nuvem de pontos, leve, sem lib externa) com pinos
- * clicáveis espalhados pelo país, conectados por curvas com um brilho que
- * percorre a linha (SVG SMIL nativo — roda sem depender de JS) e paralaxe
- * suave no mouse (só em telas com ponteiro fino, i.e. desktop).
+ * decorativos espalhados pelo país, conectados por curvas com um brilho
+ * que percorre a linha (SVG SMIL nativo — roda sem depender de JS) e
+ * paralaxe suave no mouse (só em telas com ponteiro fino, i.e. desktop).
  *
- * Acessibilidade: mapa, linhas e pinos são markup normal, visíveis mesmo
- * sem JS — só o popup do cliente e a paralaxe dependem de JS.
+ * Puramente visual/ilustrativo: os pinos não são clicáveis e não abrem
+ * nenhum popup — sem estado, sem dados de cliente.
+ *
+ * Acessibilidade: mapa, linhas e pinos são markup normal (SVG + decoração
+ * `aria-hidden`), visíveis mesmo sem JS — só a paralaxe depende de JS.
  */
 export default function RegionMap() {
-  const [activePin, setActivePin] = useState(null);
   const wrapperRef = useRef(null);
 
   // --- Paralaxe leve no mouse (desktop apenas) --------------------------
@@ -156,13 +123,13 @@ export default function RegionMap() {
   return (
     <div ref={wrapperRef} className="relative mx-auto w-full max-w-md">
       {/* Camada com paralaxe: mapa + linhas + pinos se movem juntos e
-          sutilmente com o mouse; o popup (fora daqui) fica parado. */}
+          sutilmente com o mouse. */}
       <motion.div style={{ x: springX, y: springY }} className="relative">
         <svg
           viewBox="0 0 600 600"
           className="w-full text-white/90"
           role="img"
-          aria-label="Mapa do Brasil com clientes da Flex.dev que já aparecem em primeiro no Google"
+          aria-label="Mapa do Brasil com pinos representando a presença da Flex.dev em clínicas espalhadas pelo país"
         >
           <defs>
             <radialGradient id="regionGlow" cx="50%" cy="50%" r="50%">
@@ -175,7 +142,7 @@ export default function RegionMap() {
           </defs>
 
           {/* Glow ambiente suave, centralizado — sem apontar pra uma única
-              região, já que os clientes estão espalhados pelo país */}
+              região, já que os pinos estão espalhados pelo país */}
           <circle cx="300" cy="320" r="260" fill="url(#regionGlow)" />
 
           {/* Nuvem de pontos formando a silhueta do país/região */}
@@ -183,7 +150,7 @@ export default function RegionMap() {
             <circle key={i} cx={x} cy={y} r={r} fill="currentColor" opacity={o} />
           ))}
 
-          {/* Linhas de conexão entre clientes — curvas suaves (bézier),
+          {/* Linhas de conexão entre os pinos — curvas suaves (bézier),
               nunca retas, com um ponto de luz percorrendo cada uma via
               SMIL nativo do SVG (leve, não depende de JS pra animar). */}
           {CONNECTIONS.map((conn, i) => (
@@ -219,106 +186,33 @@ export default function RegionMap() {
           ))}
         </svg>
 
-        {/* Pinos — posicionados em % sobre o SVG, funcionam como botões
-            reais (acessíveis via teclado, com área de toque confortável) */}
+        {/* Pinos decorativos — ícone clássico de marcador de mapa (gota
+            com ponta pra baixo), com um glow pulsante saindo da ponta que
+            toca o mapa. Sem interação: aria-hidden, sem onClick. */}
         {PINS.map((pin) => (
-          <button
+          <div
             key={pin.id}
-            type="button"
-            onClick={() => setActivePin(pin)}
-            className="group absolute z-10 flex -translate-x-1/2 -translate-y-full items-center justify-center p-2.5"
+            aria-hidden="true"
+            className="absolute -translate-x-1/2 -translate-y-full"
             style={{ left: `${pin.x}%`, top: `${pin.y}%` }}
-            aria-label={`Ver resultado de ${pin.name}`}
           >
-            {/* Anel pulsante */}
-            <span className="absolute h-3.5 w-3.5 animate-pin-ping rounded-full bg-accent" />
-            {/* Pino sólido */}
-            <span className="relative h-3.5 w-3.5 rounded-full bg-accent shadow-glow ring-2 ring-white/80 transition-transform group-hover:scale-125 group-active:scale-95" />
+            {/* Glow pulsante na base do pino (onde ele "toca" o mapa) */}
+            <span className="absolute bottom-0 left-1/2 h-2.5 w-2.5 -translate-x-1/2 animate-pin-ping rounded-full bg-accent" />
+            <span className="absolute bottom-0 left-1/2 h-1.5 w-1.5 -translate-x-1/2 translate-y-1/2 rounded-full bg-accent/80 blur-[1px]" />
 
-            {/* Micro-CTA — some no hover (desktop); no touch, o toque já
-                abre o card direto, então isso é só reforço visual */}
-            <span className="pointer-events-none absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-ink px-2.5 py-1 font-body text-[10px] font-semibold text-white opacity-0 shadow-lg ring-1 ring-white/10 transition-opacity duration-200 group-hover:opacity-100 sm:-top-9">
-              Clique para ver
-            </span>
-          </button>
+            {/* Ícone de marcador (gota) */}
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="#7C3AED"
+              className="relative drop-shadow-[0_0_6px_rgba(124,58,237,0.65)]"
+            >
+              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z" />
+            </svg>
+          </div>
         ))}
       </motion.div>
-
-      {/* Mini-card do cliente — overlay contido dentro do próprio mapa
-          (position: absolute relativo ao container acima, nunca fixed),
-          então não interfere no restante do layout da página. Fica FORA
-          da camada de paralaxe, pra não balançar junto com o mouse. */}
-      <AnimatePresence>
-        {activePin && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="absolute inset-0 z-20 flex items-center justify-center rounded-2xl bg-ink/80 p-4 backdrop-blur-sm"
-            onClick={() => setActivePin(null)}
-          >
-            <motion.div
-              initial={{ opacity: 0, scale: 0.92, y: 8 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.92, y: 8 }}
-              transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-              onClick={(e) => e.stopPropagation()}
-              className="relative w-full max-w-[280px] overflow-hidden rounded-2xl border border-white/10 bg-surface shadow-glow"
-            >
-              {/* Botão fechar */}
-              <button
-                type="button"
-                onClick={() => setActivePin(null)}
-                aria-label="Fechar"
-                className="absolute right-2.5 top-2.5 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-black/50 text-white/80 transition-colors hover:bg-black/70 hover:text-white"
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path
-                    d="M6 6l12 12M18 6L6 18"
-                    stroke="currentColor"
-                    strokeWidth="2.2"
-                    strokeLinecap="round"
-                  />
-                </svg>
-              </button>
-
-              {/* Print do site do cliente — SEMPRE imagem estática (nunca
-                  iframe/site ao vivo), lazy-loaded */}
-              <div className="aspect-[4/3] w-full bg-ink">
-                {activePin.image ? (
-                  <img
-                    src={activePin.image}
-                    alt={`Site de ${activePin.name}`}
-                    loading="lazy"
-                    decoding="async"
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  <div className="flex h-full w-full flex-col items-center justify-center gap-2 border border-dashed border-white/15 bg-white/[0.02] px-4 text-center">
-                    <span className="font-body text-xs text-white/30">
-                      Print do site
-                      <br />
-                      (placeholder)
-                    </span>
-                  </div>
-                )}
-              </div>
-
-              <div className="p-4 text-left">
-                <p className="font-display text-base text-white">
-                  {activePin.name}
-                </p>
-                {activePin.result && (
-                  <p className="mt-1 font-body text-sm text-accent-light">
-                    {activePin.result}
-                  </p>
-                )}
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 }
