@@ -33,37 +33,41 @@ const DOTS = BRAZIL_DOTS;
 //   `public/proof/` e aponte o caminho aqui). Sem imagem, mostra um
 //   placeholder tracejado.
 // ---------------------------------------------------------------------------
+// Espalhados de propósito em regiões bem distantes (Norte, Nordeste,
+// Sudeste, Sul) — é isso que vende presença nacional. Evite agrupar
+// pinos perto um do outro; quanto mais espalhados, mais forte o efeito
+// de rede cobrindo o país.
 const PINS = [
   {
     id: "cliente-1",
-    name: "Clínica Exemplo — São Paulo/SP", // TROCAR AQUI: nome + cidade real
-    x: 64.5,
-    y: 73.2,
-    result: "No topo do Google em 45 dias", // TROCAR AQUI (opcional)
+    name: "Clínica Exemplo — Manaus/AM", // TROCAR AQUI: nome + cidade real
+    x: 35,
+    y: 21,
+    result: "Perfil no Google 100% otimizado", // TROCAR AQUI (opcional)
     image: undefined, // TROCAR AQUI: "/proof/cliente-1-site.jpg"
   },
   {
     id: "cliente-2",
     name: "Clínica Exemplo — Salvador/BA", // TROCAR AQUI
-    x: 81,
-    y: 46.1,
+    x: 82,
+    y: 46,
     result: "Primeiro lugar em buscas locais",
     image: undefined, // TROCAR AQUI: "/proof/cliente-2-site.jpg"
   },
   {
     id: "cliente-3",
-    name: "Clínica Exemplo — Recife/PE", // TROCAR AQUI
-    x: 85,
-    y: 38.5,
-    result: "+180% de contatos pelo WhatsApp",
+    name: "Clínica Exemplo — São Paulo/SP", // TROCAR AQUI
+    x: 64.5,
+    y: 73,
+    result: "No topo do Google em 45 dias",
     image: undefined, // TROCAR AQUI: "/proof/cliente-3-site.jpg"
   },
   {
     id: "cliente-4",
-    name: "Clínica Exemplo — Belo Horizonte/MG", // TROCAR AQUI
-    x: 71,
-    y: 63.9,
-    result: "Perfil no Google 100% otimizado",
+    name: "Clínica Exemplo — Porto Alegre/RS", // TROCAR AQUI
+    x: 60,
+    y: 85,
+    result: "+180% de contatos pelo WhatsApp",
     image: undefined, // TROCAR AQUI: "/proof/cliente-4-site.jpg"
   },
 ];
@@ -156,7 +160,7 @@ export default function RegionMap() {
       <motion.div style={{ x: springX, y: springY }} className="relative">
         <svg
           viewBox="0 0 600 600"
-          className="w-full text-white/50"
+          className="w-full text-white/90"
           role="img"
           aria-label="Mapa do Brasil com clientes da Flex.dev que já aparecem em primeiro no Google"
         >
