@@ -27,8 +27,8 @@ export default function Hero() {
         transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
         className="relative z-10 max-w-md font-display text-[1.9rem] leading-[1.15] tracking-tight sm:max-w-xl sm:text-4xl md:text-5xl"
       >
-        Negócios que já aparecem em{" "}
-        <span className="text-gradient-accent">primeiro</span> no Google.
+        Estar no topo do Google não é uma opção. É{" "}
+        <span className="text-gradient-accent">obrigação</span>.
       </motion.h1>
 
       {/* Linha fina de apoio */}
@@ -38,7 +38,7 @@ export default function Hero() {
         transition={{ duration: 0.5, delay: 0.12 }}
         className="relative z-10 mt-3 font-body text-sm text-white/50 sm:text-base"
       >
-        Estar no topo do Google não é uma opção. É obrigação.
+        Veja quem já está lá.
       </motion.p>
 
       {/* Mapa regional — protagonista da hero */}
