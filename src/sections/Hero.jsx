@@ -38,7 +38,7 @@ export default function Hero() {
         transition={{ duration: 0.5, delay: 0.12 }}
         className="relative z-10 mt-3 font-body text-sm text-white/50 sm:text-base"
       >
-        Presença real, espalhada por todo o Brasil.
+        Estar no topo do Google não é uma opção. É obrigação.
       </motion.p>
 
       {/* Mapa regional — protagonista da hero */}
