@@ -26,64 +26,55 @@ const DOTS = BRAZIL_DOTS;
 const OUTLINE_PATH = roundedPolygonPath(BRAZIL_OUTLINE, 20);
 
 // ---------------------------------------------------------------------------
-// PINOS — puramente decorativos (o mapa não abre mais nada ao tocar). Só
-// marcam presença espalhada pelo país; `x`/`y` são porcentagens (0–100)
-// relativas ao mapa. Espalhe por regiões DISTANTES pra reforçar a leitura
-// de rede nacional — evite agrupar pinos perto um do outro.
+// PINOS — puramente decorativos (o mapa não abre mais nada ao tocar, e não
+// há linhas conectando um pino a outro). São 16 pinos de propósito — o
+// número remete aos "+16 clientes" já usados na marca — espalhados pelas
+// 5 regiões do país (Norte, Nordeste, Centro-Oeste, Sudeste, Sul), sem
+// amontoar em nenhum ponto. `x`/`y` são porcentagens (0–100) relativas ao
+// mapa.
 //
 // Como posicionar um pino novo:
 // - x: 0% = extremo oeste do mapa, 100% = extremo leste.
 // - y: 0% = extremo norte do mapa, 100% = extremo sul.
+// - Ao adicionar/mover um pino, mantenha uma distância mínima de ~9% dos
+//   vizinhos (num mapa de ~450px no mobile, ícones de 28px encostam antes
+//   disso).
 // ---------------------------------------------------------------------------
 const PINS = [
-  { id: "pin-1", x: 35, y: 21 }, // Norte (região de Manaus/AM)
-  { id: "pin-2", x: 82, y: 46 }, // Nordeste (região de Salvador/BA)
-  { id: "pin-3", x: 64.5, y: 73 }, // Sudeste (região de São Paulo/SP)
-  { id: "pin-4", x: 60, y: 85 }, // Sul (região de Porto Alegre/RS)
+  // Norte
+  { id: "pin-manaus", x: 33, y: 20 },
+  { id: "pin-belem", x: 51, y: 11 },
+  { id: "pin-porto-velho", x: 24, y: 36 },
+  { id: "pin-boa-vista", x: 30, y: 6 },
+  // Nordeste
+  { id: "pin-salvador", x: 83, y: 47 },
+  { id: "pin-recife", x: 92, y: 29 },
+  { id: "pin-fortaleza", x: 75, y: 18 },
+  { id: "pin-sao-luis", x: 63, y: 18 },
+  // Centro-Oeste
+  { id: "pin-brasilia", x: 58, y: 49 },
+  { id: "pin-cuiaba", x: 40, y: 49 },
+  // Sudeste
+  { id: "pin-sao-paulo", x: 62, y: 76 },
+  { id: "pin-rio-de-janeiro", x: 76, y: 67 },
+  { id: "pin-belo-horizonte", x: 67, y: 57 },
+  { id: "pin-vitoria", x: 84, y: 58 },
+  // Sul
+  { id: "pin-porto-alegre", x: 52, y: 92 },
+  { id: "pin-curitiba", x: 51, y: 81 },
 ];
-
-// Converte a % (0–100) usada nos pinos pra coordenada do viewBox 600x600,
-// pra desenhar as linhas de conexão no mesmo sistema de coordenadas do mapa.
-const toSvg = (pct) => (pct / 100) * 600;
-
-// Gera uma curva suave (bézier quadrática) entre dois pinos — nunca uma
-// linha reta. O ponto de controle é deslocado perpendicularmente à reta
-// que liga os dois pontos, proporcional à distância entre eles, criando
-// um arco natural (efeito "rota de voo").
-function buildCurvePath(a, b) {
-  const x1 = toSvg(a.x), y1 = toSvg(a.y);
-  const x2 = toSvg(b.x), y2 = toSvg(b.y);
-  const dx = x2 - x1, dy = y2 - y1;
-  const dist = Math.hypot(dx, dy) || 1;
-  const [px, py] = [-dy / dist, dx / dist]; // vetor perpendicular unitário
-  const bow = dist * 0.22;
-  const cx = (x1 + x2) / 2 + px * bow;
-  const cy = (y1 + y2) / 2 + py * bow;
-  return `M ${x1} ${y1} Q ${cx} ${cy} ${x2} ${y2}`;
-}
-
-// Conecta os pinos em cadeia (1→2→3→4) e fecha o ciclo (último→primeiro),
-// formando uma "rede" com poucas linhas, sem virar um emaranhado. Funciona
-// para qualquer quantidade de pinos que você adicionar na lista acima.
-function buildConnections(pins) {
-  if (pins.length < 2) return [];
-  const links = pins.map((pin, i) => [pin, pins[(i + 1) % pins.length]]);
-  return links.map(([a, b], i) => ({ id: `conn-${i}`, d: buildCurvePath(a, b) }));
-}
-
-const CONNECTIONS = buildConnections(PINS);
 
 /**
  * RegionMap
- * Mapa regional em SVG (nuvem de pontos, leve, sem lib externa) com pinos
- * decorativos espalhados pelo país, conectados por curvas com um brilho
- * que percorre a linha (SVG SMIL nativo — roda sem depender de JS) e
- * paralaxe suave no mouse (só em telas com ponteiro fino, i.e. desktop).
+ * Mapa do Brasil em SVG (contorno em linha + nuvem de pontos como textura,
+ * leve, sem lib externa) com 16 pinos decorativos espalhados pelas 5
+ * regiões do país e paralaxe suave no mouse (só em telas com ponteiro
+ * fino, i.e. desktop). Sem linhas conectando os pinos — só os ícones.
  *
  * Puramente visual/ilustrativo: os pinos não são clicáveis e não abrem
  * nenhum popup — sem estado, sem dados de cliente.
  *
- * Acessibilidade: mapa, linhas e pinos são markup normal (SVG + decoração
+ * Acessibilidade: mapa e pinos são markup normal (SVG + decoração
  * `aria-hidden`), visíveis mesmo sem JS — só a paralaxe depende de JS.
  */
 export default function RegionMap() {
@@ -141,9 +132,6 @@ export default function RegionMap() {
               <stop offset="0%" stopColor="#7C3AED" stopOpacity="0.16" />
               <stop offset="100%" stopColor="#7C3AED" stopOpacity="0" />
             </radialGradient>
-            <filter id="glowBlur" x="-200%" y="-200%" width="500%" height="500%">
-              <feGaussianBlur stdDeviation="3.2" />
-            </filter>
             {/* Glow mais largo, só para o traço do contorno — dá
                 profundidade sem borrar a linha nítida por cima */}
             <filter id="outlineGlow" x="-40%" y="-40%" width="180%" height="180%">
@@ -184,40 +172,6 @@ export default function RegionMap() {
             opacity="0.85"
           />
 
-          {/* Linhas de conexão entre os pinos — curvas suaves (bézier),
-              nunca retas, com um ponto de luz percorrendo cada uma via
-              SMIL nativo do SVG (leve, não depende de JS pra animar). */}
-          {CONNECTIONS.map((conn, i) => (
-            <g key={conn.id}>
-              <path
-                id={conn.id}
-                d={conn.d}
-                fill="none"
-                stroke="#7C3AED"
-                strokeWidth="1.4"
-                strokeLinecap="round"
-                opacity="0.3"
-              />
-              <circle r="3.2" fill="#C4B5FD" filter="url(#glowBlur)">
-                <animateMotion
-                  dur={`${5 + i * 1.3}s`}
-                  begin={`${i * 0.6}s`}
-                  repeatCount="indefinite"
-                  rotate="auto"
-                >
-                  <mpath href={`#${conn.id}`} />
-                </animateMotion>
-                <animate
-                  attributeName="opacity"
-                  values="0;1;1;0"
-                  keyTimes="0;0.1;0.9;1"
-                  dur={`${5 + i * 1.3}s`}
-                  begin={`${i * 0.6}s`}
-                  repeatCount="indefinite"
-                />
-              </circle>
-            </g>
-          ))}
         </svg>
 
         {/* Pinos decorativos — ícone no estilo do marcador do Google Perfil
