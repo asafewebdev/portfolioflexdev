@@ -220,29 +220,46 @@ export default function RegionMap() {
           ))}
         </svg>
 
-        {/* Pinos decorativos — ícone clássico de marcador de mapa (gota
-            com ponta pra baixo), com um glow pulsante saindo da ponta que
-            toca o mapa. Sem interação: aria-hidden, sem onClick. */}
+        {/* Pinos decorativos — ícone no estilo do marcador do Google Perfil
+            de Empresa (badge azul, toldo listrado, "G" branco central),
+            centralizados na coordenada (é assim que o Google mostra esse
+            ícone no mapa — sem "rabinho" de pino). Glow pulsante atrás.
+            Sem interação: aria-hidden, sem onClick. */}
         {PINS.map((pin) => (
           <div
             key={pin.id}
             aria-hidden="true"
-            className="absolute -translate-x-1/2 -translate-y-full"
+            className="absolute -translate-x-1/2 -translate-y-1/2"
             style={{ left: `${pin.x}%`, top: `${pin.y}%` }}
           >
-            {/* Glow pulsante na base do pino (onde ele "toca" o mapa) */}
-            <span className="absolute bottom-0 left-1/2 h-2.5 w-2.5 -translate-x-1/2 animate-pin-ping rounded-full bg-accent" />
-            <span className="absolute bottom-0 left-1/2 h-1.5 w-1.5 -translate-x-1/2 translate-y-1/2 rounded-full bg-accent/80 blur-[1px]" />
+            {/* Glow pulsante atrás do ícone */}
+            <span className="absolute left-1/2 top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 animate-pin-ping rounded-full bg-accent" />
 
-            {/* Ícone de marcador (gota) */}
+            {/* Ícone "casinha" do Google Perfil de Empresa: badge azul,
+                toldo com listras brancas, G branco no centro */}
             <svg
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="#7C3AED"
-              className="relative drop-shadow-[0_0_6px_rgba(124,58,237,0.65)]"
+              width="28"
+              height="28"
+              viewBox="0 0 32 32"
+              className="relative drop-shadow-[0_0_6px_rgba(124,58,237,0.6)]"
             >
-              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z" />
+              {/* Corpo do badge */}
+              <rect x="3" y="3" width="26" height="26" rx="7" fill="#4285F4" />
+              {/* Toldo listrado */}
+              <rect x="3" y="6.5" width="26" height="2.8" fill="#FFFFFF" />
+              <rect x="3" y="11.3" width="26" height="2.8" fill="#FFFFFF" opacity="0.9" />
+              {/* "G" do Google, branco, centralizado no corpo */}
+              <text
+                x="16"
+                y="25.5"
+                textAnchor="middle"
+                fontFamily="Arial, Helvetica, sans-serif"
+                fontWeight="700"
+                fontSize="12"
+                fill="#FFFFFF"
+              >
+                G
+              </text>
             </svg>
           </div>
         ))}
