@@ -54,12 +54,12 @@ export default function Hero() {
         </WhatsappButton>
 
         {/*
-          Botão secundário "Ver exemplos": não leva a lugar nenhum externo,
+          Botão secundário "Entenda como": não leva a lugar nenhum externo,
           só rola suavemente até a seção do processo (onde ficam os 4
-          passos com a prova de resultado de cada cliente) — é o que a
-          palavra "exemplos" promete. Se preferir que ele pare antes, na
-          seção de Problema (id="top" já é o Hero; a próxima seção não
-          tem id ainda), me avise que eu adiciono o id lá e troco o alvo.
+          passos com a prova de resultado de cada cliente). Se preferir
+          que ele pare antes, na seção de Problema (id="top" já é o Hero;
+          a próxima seção não tem id ainda), me avise que eu adiciono o id
+          lá e troco o alvo.
         */}
         <button
           type="button"
@@ -70,7 +70,7 @@ export default function Hero() {
           }
           className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-white/25 bg-transparent px-6 py-3.5 font-body text-sm font-semibold text-white/80 transition-all duration-300 hover:border-white/40 hover:bg-white/5 hover:text-white active:scale-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/30 focus-visible:ring-offset-2 focus-visible:ring-offset-ink sm:w-auto"
         >
-          Ver exemplos
+          Entenda como
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path
               d="M12 5v14m0 0l-6-6m6 6l6-6"
