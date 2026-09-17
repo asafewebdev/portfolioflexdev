@@ -1,24 +1,29 @@
 import { useEffect, useRef } from "react";
 import { motion, useMotionValue, useSpring } from "framer-motion";
 import { BRAZIL_DOTS } from "../data/brazilDots";
+import { BRAZIL_OUTLINE } from "../data/brazilOutline";
+import { roundedPolygonPath } from "../utils/roundedPolygonPath";
 
 // ---------------------------------------------------------------------------
 // CONFIGURAÇÃO DO MAPA — troque aqui quando mudar de região (ex: Equador).
 // ---------------------------------------------------------------------------
-// O mapa é desenhado como uma nuvem de pontos (pointillist map) dentro de um
-// viewBox 0 0 600 600 — é leve (só <circle> em SVG, ~1100 pontos, sem lib de
-// mapa) e estilizado, não cartograficamente preciso.
+// O mapa combina duas camadas dentro de um viewBox 0 0 600 600 — leve (só
+// <path>/<circle> em SVG, sem lib de mapa):
+// 1. Uma LINHA de contorno (BRAZIL_OUTLINE), que carrega o reconhecimento
+//    da forma do país — nítida, com um glow roxo discreto atrás.
+// 2. Uma nuvem de pontos (BRAZIL_DOTS) por dentro, como textura discreta,
+//    sem competir com a linha.
+// As duas vêm do MESMO polígono de vértices, então ficam sempre alinhadas.
 //
 // Para trocar de região (ex: Brasil -> Equador):
-// 1. Gere um novo arquivo de pontos como `src/data/brazilDots.js`. O script
-//    que gerou esse arquivo faz um point-in-polygon sobre um contorno
-//    aproximado do país (lista de vértices x/y já convertida pro viewBox
-//    600x600) — troque só essa lista de vértices pelo contorno do Equador
-//    e rode o script de novo.
-// 2. Troque o import `BRAZIL_DOTS` abaixo pelo novo dataset.
-// 3. Recalcule os `x`/`y` (em %) de cada pino no array PINS mais abaixo,
-//    já que eles são posicionados relativos ao viewBox 600x600 do mapa.
+// 1. Troque os vértices em `src/data/brazilOutline.js` pelo contorno
+//    aproximado do novo país (mesma escala 600x600).
+// 2. Regenere `src/data/brazilDots.js` com esse mesmo polígono (o script
+//    que gerou o arquivo faz um point-in-polygon sobre a lista de vértices
+//    — está documentado no comentário do próprio arquivo).
+// 3. Recalcule os `x`/`y` (em %) de cada pino no array PINS mais abaixo.
 const DOTS = BRAZIL_DOTS;
+const OUTLINE_PATH = roundedPolygonPath(BRAZIL_OUTLINE, 20);
 
 // ---------------------------------------------------------------------------
 // PINOS — puramente decorativos (o mapa não abre mais nada ao tocar). Só
@@ -127,28 +132,57 @@ export default function RegionMap() {
       <motion.div style={{ x: springX, y: springY }} className="relative">
         <svg
           viewBox="0 0 600 600"
-          className="w-full text-white/90"
+          className="w-full text-white/80"
           role="img"
           aria-label="Mapa do Brasil com pinos representando a presença da Flex.dev em clínicas espalhadas pelo país"
         >
           <defs>
             <radialGradient id="regionGlow" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor="#7C3AED" stopOpacity="0.28" />
+              <stop offset="0%" stopColor="#7C3AED" stopOpacity="0.16" />
               <stop offset="100%" stopColor="#7C3AED" stopOpacity="0" />
             </radialGradient>
             <filter id="glowBlur" x="-200%" y="-200%" width="500%" height="500%">
               <feGaussianBlur stdDeviation="3.2" />
             </filter>
+            {/* Glow mais largo, só para o traço do contorno — dá
+                profundidade sem borrar a linha nítida por cima */}
+            <filter id="outlineGlow" x="-40%" y="-40%" width="180%" height="180%">
+              <feGaussianBlur stdDeviation="6" />
+            </filter>
           </defs>
 
-          {/* Glow ambiente suave, centralizado — sem apontar pra uma única
-              região, já que os pinos estão espalhados pelo país */}
+          {/* Glow ambiente suave e baixo, centralizado — sem apontar pra
+              uma única região (os pinos estão espalhados pelo país) e
+              sutil o bastante pra não comprometer a legibilidade da linha */}
           <circle cx="300" cy="320" r="260" fill="url(#regionGlow)" />
 
-          {/* Nuvem de pontos formando a silhueta do país/região */}
+          {/* Contorno do Brasil — glow roxo discreto atrás da linha, pra
+              dar profundidade sem borrar o traço nítido por cima */}
+          <path
+            d={OUTLINE_PATH}
+            fill="none"
+            stroke="#7C3AED"
+            strokeWidth="6"
+            opacity="0.35"
+            filter="url(#outlineGlow)"
+          />
+
+          {/* Nuvem de pontos — textura discreta por dentro do contorno,
+              não é mais o que carrega o reconhecimento da forma */}
           {DOTS.map(([x, y, r, o], i) => (
             <circle key={i} cx={x} cy={y} r={r} fill="currentColor" opacity={o} />
           ))}
+
+          {/* Linha de contorno nítida — por cima dos dots, é ela que
+              garante o formato do Brasil reconhecível de cara */}
+          <path
+            d={OUTLINE_PATH}
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.6"
+            strokeLinejoin="round"
+            opacity="0.85"
+          />
 
           {/* Linhas de conexão entre os pinos — curvas suaves (bézier),
               nunca retas, com um ponto de luz percorrendo cada uma via
